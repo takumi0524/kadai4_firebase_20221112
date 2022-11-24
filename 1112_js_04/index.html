@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="utf-8">
+    <title>Todoリスト</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/6ca38c9040.js" crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<!-- 課題内容 -->
+<!-- 
+1.メッセージ表示領域
+2.削除機能
+→ボタン作成onchildadded
+3.見た目の装飾とか
+さらにあれば良いと思われる機能
+→「アイコン」「メッセージ翻訳」「対戦じゃんけん」「メモ帳をCloudに保存」など、なんでもあり！ 
+
+・画像投稿
+・
+
+-->
+<body>
+    <!-- コンテンツ表示画面 -->
+    <header id = "T_header">Todoリスト</header>
+    <!-- 入力フォーム -->
+    <!-- <div>username<input type="text" id="uname"> </div> -->
+    <div id="form">
+        <textarea id="text" maxlength="140" cols="20" rows="10"></textarea>
+        <!-- 文字数制限や「140字以内で投稿」みたいなのも実装したい -->
+        <!-- <button id="send">tweet</button> -->
+        <a href="#" id="send"><i class="fa-solid fa-paper-plane"></i></a>
+    </div>
+
+    <div class = "form_style">
+        <!-- <p id="incomplete">未完了</p> -->
+        <!-- firebaseに格納されているデータから取得したものを表示 -->
+        <div id="output"></div>
+        <!-- <button id="delete">delete</button> -->
+
+        <!-- 完了 -->
+
+        <!--/ コンテンツ表示画面 -->
+
+        <!-- 時刻表示 -->
+        <!-- <span id="jikoku"></span> -->
+
+        <!-- 送信ボタンを押下したら、上記入力したものと一緒に出力する
+        →jquary部分で描くべき？ -->
+    </div>
+
+
+<!-- //////////////////////////////////////////////////////// -->
+
+<!-- JQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<!-- JQuery -->
+
+
+<!--** 以下Firebase **-->
+<script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-app.js";
+
+    //貼り付ける場所
+    import { getDatabase, ref, push, set, onChildAdded, remove,onChildRemoved } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-database.js";
+    // TODO: Add SDKs for Firebase products that you want to use
+    // https://firebase.google.com/docs/web/setup#available-libraries
+  
+    // Your web app's Firebase configuration ※※ここでAPI Keyを挿入
+  
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+
+    const db = getDatabase(app);
+    const dbRef = ref(db,"dev245");
+
+
+ ///////////////////////////////////////////////////////////////
+
+    // 送信処理を記述
+    $("#send").on("click", function() {
+        // id = "uname"の場所を取得する
+    //    const uname = $("#uname").val();
+    //    console.log(uname, "aaaa");
+        
+        // id = "text"の場所を取得する
+       const text = $("#text").val();
+       console.log(text, "ssss");
+
+        // 入力値が空かチェック
+        if (text == '') {
+            // 入力値が空の場合、処理を中断
+            return;
+        }
+
+        //データの塊を作る
+        // msgという名前で塊を作ります
+        // unameという鍵の名前
+        // textというカギの名前
+        // 作成したデータの塊をfirebaseに送信をする → これが保存になる！
+
+        const msg ={
+            // uname: uname,
+            text: text,
+            // jikoku: jikoku
+            // Tdelete: Tdelete
+        }
+
+        // firebaseに送る準備
+        const newPostRef = push(dbRef)  //データを送信できる準備
+        // 
+        set(newPostRef, msg);  //firebaseの登録できる場所に保存するイメージ 
+
+        // 送信後に入力欄を空にする
+        // $("#uname").val("");
+        $("#text").val("");
+
+        // 入力後にtextにカーソルがあたるようになる
+        $("#text").focus();
+
+        // send送信イベント この下は消さない
+    });
+
+
+    // 受信処理
+    onChildAdded(dbRef, function(data){
+        // ここから受信処理がはじまる
+
+        // 登録されたデータを取得する
+        const msg = data.val();
+        console.log(msg,"取得したデータの塊")
+        const key = data.key;
+        console.log(key,"取得したデータのkey")
+
+        // es6のテンプレートリテラル
+        let h = `
+            <div class=“msg”>
+                <p class="msg-text">${msg.text}</p>
+                <div class="icon_position">
+                    <a href="#" id="trashicon" data-kg=${key}><i class="fa-solid fa-trash"></i></a>
+                    <a href="#" id="completeicon" data-kg=${key}><i class="fa-solid fa-check"></i></a>
+                <div>
+            </div>
+        `;
+        //↑↑↑↑↑deleteボタン 入れる
+        // <span id="jikoku"></span>
+        //<button id="delete" data-kg=${key}>delete</button>
+        // <button id="delete" data-kg=${key}>delete</button>
+        // <button id="iine" data-kg=${key}>いいね</button>
+        // <a href="#" id="trashicon"><i class="fa-solid fa-trash"></i></a>
+        // <button id="trashicon" data-kg=${key}><i class="fa-solid fa-trash"></i></button>
+
+
+        // htmlに埋め込む
+        // append();というjqueryの機能を使う。
+        $("#output").append(h);
+
+    });
+
+    // 削除処理 <----削除ボタンを押下したデータの塊を削除する
+    $(document).on("click", "#trashicon", function (data) {
+
+        let v = $(this).data("kg");
+        console.log(v, "カギ");
+
+        onChildRemoved(ref(db, "dev245/" + v), function(ddd){
+            console.log(ddd.key);
+            console.log(ddd.val());
+            // $("#delete")
+            //ここで削除する(HTML)
+        });
+
+        remove(ref(db, "dev245/" + v));
+
+        // ここでhtml(DOM)側のデータを削除する
+        location.reload(); // jsのおまじない、強制リロード＝画面上消える・・本来はfirebase側に onChildRemoved
+    });
+
+    //完了処理 <---チェックマークを押下すると完了エリアにデータが移る
+    // $(document).on("click", "#completeicon", function (data) {
+    
+    //     let kanryo = $(this).data("kg");
+    //     console.log(kanryo, "カギ");
+
+    //     onChildRemoved(ref(db, "dev245/" + v), function(ddd){
+    //         console.log(ddd.key);
+    //         console.log(ddd.val());
+    //         // $("#delete")
+    //         //ここで削除する(HTML)
+    //     });
+
+    //     remove(ref(db, "dev245/" + v));
+
+    //     // ここでhtml(DOM)側のデータを削除する
+    //     location.reload(); // jsのおまじない、強制リロード＝画面上消える・・本来はfirebase側に onChildRemoved
+ 
+
+    //     // ここでhtml(DOM)側のデータを削除する
+    // });
+
+
+</script>
+
+</body>
+</html>

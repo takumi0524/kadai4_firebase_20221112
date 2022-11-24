@@ -1,0 +1,64 @@
+<p class="msg-text">${msg.uname}</p>
+
+            <!-- <i class="fa-solid fa-paper-plane"></i>
+            <i class="fa-solid fa-heart"></i>
+            <i class="fa-regular fa-heart"></i>  -->
+            <a href="#" id="iineicon" data-kg=${key}><i class="fa-regular fa-heart"></i></a>
+
+// 削除データ(firebase)するパスを格納する
+// onChildAdded(dbRef, function(data){
+//     const deletemsg = data.val();
+//     const deletemsg2 = $(this).closest("button");
+//     // console.log(deletemsg,"削除したいデータの塊")
+//     console.log(deletemsg2,"削除したいデータの塊")
+//     const deletekey = data.key;
+//     console.log(deletekey,"削除したいデータのkey")
+// });
+
+// const deletemsg = data.val();
+// console.log(deletemsg,"削除したいデータの塊")
+// const deletekey = data.key;
+// console.log(deletekey,"削除したいデータの塊")
+
+// onChildRemoved(dbRef, "dev245/" + deletekey, function(data_delete){
+//     console.log(deletemsg,"onChildRemovedは動いてるよ")
+//     console.log(deletekey,"onChildRemovedは動いてるよ")
+// });
+
+
+// firebase側のデータを削除する
+// remove(ref(db, "dev245/" + deletekey));
+
+
+
+
+
+
+// 削除をボタンを押したら⇨アラートが出れば成功！！
+// $(document).on("click", "#delete", function () {
+//     const yeee = "abcdefg"
+//     console.log(yeee,"削除ボタン押せたよ")
+//     // let target = $(this).parent().data("date");
+//     // remove(ref(db, "dev245/" + target));
+//   // location.reload(); // jsのおまじない、本来はfirebase側に onChildRemoved
+// });
+
+
+
+
+
+//現在時刻を取得
+document.getElementById("jikoku").innerHTML = showTime();
+function showTime() {
+    const now = new Date();
+    const nowhour = now.getHours();
+    const nowminutes = now.getMinutes();
+    const nowseconds = now.getSeconds();
+    
+    const jikoku = nowhour + ":" + nowminutes + ":" + nowseconds; 
+    
+    return jikoku;
+}
+
+//取得できているか表示の確認
+// alert(uname + text);

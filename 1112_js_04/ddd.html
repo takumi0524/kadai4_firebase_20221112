@@ -1,0 +1,84 @@
+//繋がったかくにん
+// alert(1111);
+// Import the functions you need from the SDKs you need
+import { initializeApp } from “https://www.gstatic.com/firebasejs/9.1.0/firebase-app.js”;
+import { getDatabase, ref, push, set, onChildAdded, remove, onChildRemoved } from “https://www.gstatic.com/firebasejs/9.1.0/firebase-database.js”;
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+// Your web app’s Firebase configuration
+const firebaseConfig = {
+    apiKey: “AIzaSyDJxoKQPDLanSE-QvA3EoZYM1ZX2aSv2AI”,
+    authDomain: “dev245-b69ad.firebaseapp.com”,
+    projectId: “dev245-b69ad”,
+    storageBucket: “dev245-b69ad.appspot.com”,
+    messagingSenderId: “1015667969611”,
+    appId: “1:1015667969611:web:3a691893ec0a47a96f87ce”
+};
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app); // RealtimeDatabase使うよ
+const dbRef = ref(db, ‘dev245’); // RealtimeDatabase”dev245"を使うよ refは参照する
+//-------送信処理を記述---------
+$(‘#send’).on(‘click’, function(){
+    //id uname の場所を取得
+    const uname = $(‘#uname’).val();
+    // console.log(uname,‘unameの中身の確認‘);
+    //id text の場所を取得
+    const text = $(‘#text’).val();
+    // console.log(text,‘textの中身の確認‘);
+    //取得できているかかくにん
+    // これ必須！
+    // alert(uname + text);
+    //データの塊作り msgという名前
+    //uname text が鍵の名前
+    //作成したデータの塊をfirebaseに送信をします⇨つまりこれが保存になります:やっほー:
+    const msg={
+        uname: uname,
+        text: text,
+    }
+    // firebaseに送る準備をしていることになります:やっほー:
+    const newPostRef = push(dbRef) //データを送信できる準備
+    set(newPostRef, msg); // firebaseの登録できる場所に保存するイメージです:やっほー:
+    //送信後に入力欄をからにする//valに“”をつけるとからにしてくれる
+    $(“#uname”).val(“”);
+    $(“#text”).val(“”);
+    // カーソルを持っていく
+    $(“#uname”).focus();
+// send送信イベント この下消さない
+});
+//-----受信処理を記述---------
+//functionの後（）に名前入れると、その場所にデータ入る
+onChildAdded(dbRef, function(data){
+    //ここから受信処理開始
+    //登録されたデータを取得//firebaseのデータ名（塊）を持ってくる
+    const msg=data.val();
+    console.log(msg, ‘取得したデータの塊‘)
+    //登録されたデータを取得2//keyのデータ塊を持ってくる
+    const key = data.key;
+    console.log(key, ‘データの塊にアクセス’)
+    //es6のテンプレートリテラル※テンプレートリテラル使わないと怒られるレベルの
+    let h =`
+    <div class=“msg”>
+        <p class=“msg-text”>${msg.uname}</p>
+        <p class=“msg-text”>${msg.text}</p>
+        <button id=“delete” data-kg=${key}>けす</button>
+    </div>
+    `
+    //htmlを埋め込み
+    //append();というおまじない
+    $(“#output”).append(h);
+    // onChildAdded イベント この下消さない
+});
+//-----削除ボタンの挙動-----
+$(document).on(“click”,“#delete”,function(){
+    let v = $(this).data(“kg”);
+    console.log(v, “カギ“);
+    onChildRemoved(ref(db, “dev245/” + v), function(ddd){
+        console.log(ddd.key);
+        console.log(ddd.val());
+        $(“#delete”).
+        //ここで削除するんだ（HTML
+    });
+    remove(ref(db, “dev245/” + v));
+    // location.reload(); // jsのおまじない、強制リロード＝画面上消える・・本来はfirebase側に onChildRemoved
+});
